@@ -1,6 +1,11 @@
-﻿using System.Text;
+﻿using System.Net;
+using System.Text;
+using AutoMapper;
+using Domain.DTO_s;
 using Domain.Entities;
+using Infrastructure.Data;
 using Infrastructure.Response;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
 namespace Infrastructure.Service;
@@ -14,38 +19,35 @@ public class ChatService : IChatService
         "https://sanja-m5xrnki3-eastus2.openai.azure.com/openai/deployments/gpt-4o/chat/completions?api-version=2024-02-15-preview";
 
     private readonly HttpClient _httpClient;
+    private readonly DataContext _context;
+    private readonly IMapper _mapper;
 
-    public ChatService(HttpClient httpClient)
+    public ChatService(HttpClient httpClient, DataContext context, IMapper mapper)
     {
         _httpClient = httpClient;
+        _context = context;
+        _mapper = mapper;
     }
 
     public async Task<ApiResponse<string?>> GetAnswer(Chat prompt)
     {
+        var cars = await _context.Cars.ToListAsync();
+        var carsList = string.Join(", ", cars.Select(car => $"{car.Model} ({car.Color}) - {car.Price:C}"));
+        var promptForAI = $"Клиент задал вопрос: {prompt.Question} если вопрос относится к машинам возьми ответ отсюда {carsList} если нет то просто ответь по своему";
+                          
         _httpClient.DefaultRequestHeaders.Add("api-key", API_KEY);
-
         var payload = new
         {
-            messages = new object[]
+            messages = new[]
             {
-                new
-                {
-                    role = "system",
-                    content = new object[]
-                    {
-                        new
-                        {
-                            type = "text",
-                            text = prompt.Question
-                        }
-                    }
-                }
+                new { role = "user", content = promptForAI }
             },
             temperature = 0.7,
             top_p = 0.95,
             max_tokens = 800,
             stream = false
         };
+
 
         var response = await _httpClient.PostAsync(ENDPOINT,
             new StringContent(JsonConvert.SerializeObject(payload), Encoding.UTF8, "application/json"));
@@ -64,7 +66,6 @@ public class ChatService : IChatService
         }
 
         // Логируем ошибку, если произошла ошибка на сервере
-        return new ApiResponse<string?>((int)response.StatusCode, $"Ошибка: {response.ReasonPhrase}");
+        return new ApiResponse<string?>(HttpStatusCode.InternalServerError, $"Ошибка: {response.ReasonPhrase}");
     }
-
 }

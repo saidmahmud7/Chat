@@ -1,4 +1,6 @@
-﻿namespace Infrastructure.Response;
+﻿using System.Net;
+
+namespace Infrastructure.Response;
 
 public class ApiResponse<T>
 {
@@ -13,7 +15,7 @@ public class ApiResponse<T>
         Data = data;
         Message = String.Empty;
     }
-    public ApiResponse(int statusCode, string message)
+    public ApiResponse(HttpStatusCode statusCode, string message)
     {
         Data = default;
         StatusCode = (int)statusCode;

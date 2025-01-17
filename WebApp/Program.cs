@@ -1,4 +1,8 @@
+using Infrastructure.Data;
+using Infrastructure.Profile;
 using Infrastructure.Service;
+using Infrastructure.Service.CarService;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +12,11 @@ builder.Services.AddHttpClient<IChatService, ChatService>();  // Этого до
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<ICarService, CarService>();
+builder.Services.AddDbContext<DataContext>(options => 
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddAutoMapper(typeof(InfrastructureProfile));
+
 
 var app = builder.Build();
 
