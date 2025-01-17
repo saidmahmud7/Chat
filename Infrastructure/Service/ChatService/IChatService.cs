@@ -5,5 +5,5 @@ namespace Infrastructure.Service;
 
 public interface IChatService
 {
-    Task<ApiResponse<string?>> GetAnswer(Chat prompt);
+    Task<ApiResponse<string?>> GetAnswer(AI prompt);
 }

@@ -10,6 +10,6 @@ namespace WebApp.Controller;
 public class ChatController(IChatService service) : ControllerBase
 {
     [HttpPost]
-    public async Task<ApiResponse<string?>> Ask([FromBody] Chat prompt) => await service.GetAnswer(prompt);
+    public async Task<ApiResponse<string?>> Ask([FromBody] AI prompt) => await service.GetAnswer(prompt);
     
 }

@@ -29,7 +29,7 @@ public class ChatService : IChatService
         _mapper = mapper;
     }
 
-    public async Task<ApiResponse<string?>> GetAnswer(Chat prompt)
+    public async Task<ApiResponse<string?>> GetAnswer(AI prompt)
     {
         var cars = await _context.Cars.ToListAsync();
         var carsList = string.Join(", ", cars.Select(car => $"{car.Model} ({car.Color}) - {car.Price:C}"));
